@@ -6,8 +6,8 @@
 # include "SDL.h"
 
 # define WIN_TITLE "fractal de Robin"
-# define SCREENX 1280
-# define SCREENY 720
+# define SCREENX 2048
+# define SCREENY 1152
 # define CL_PLATFORM_UNINITIALIZED -1
 # define CL_PLATFORM_MAX_AMOUNT 2
 # define CL_PROGRAM_SOURCE_ "kernel.cl"

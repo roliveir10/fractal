@@ -9,6 +9,13 @@ typedef struct			s_mandelbrot
 	double				offsetY;
 }						t_mandelbrot;
 
+typedef struct			s_vector
+{
+	double				r;
+	double				g;
+	double				b;
+}						t_vector;
+
 static unsigned int		colorToUint(unsigned char r, unsigned char g, unsigned char b)
 {
 	unsigned int		color;
@@ -17,26 +24,39 @@ static unsigned int		colorToUint(unsigned char r, unsigned char g, unsigned char
 	return (color);
 }
 
+static unsigned int		getColor(double l)
+{
+	t_vector			color;
+
+	color.r += 0.5 + 0.5 * cos(3.0 + l * 0.15);
+	color.g += 0.5 + 0.5 * cos(3.0 + l * 0.15 + 0.6);
+	color.b += 0.5 + 0.5 * cos(3.0 + l * 0.15 + 1.0);
+	return (colorToUint(255 * color.r, 255 * color.g, 255 * color.b));
+}
+
 static unsigned int		calcMandelbrot(double x, double y)
 {
 	double				z_r = x;
 	double				z_i = y;
-	double				z0_r = x;
-	double				z0_i = y;
 	int					r = 0;
-	double				tmp;
-	int					iterMax = 200;
+	int					iterMax = 256;
 
-	while (z_r * z_r + z_i * z_i < 4 && r < iterMax)
+	while (r < iterMax)
 	{
-		tmp = z_r;
-		z_r = z_r * z_r - z_i * z_i + z0_r;
-		z_i = 2 * tmp * z_i + z0_i;
+		double dotZ_r = z_r * z_r;
+		double dotZ_i = z_i * z_i;
+		if (dotZ_r + dotZ_i > 65235)
+			break ;
+		double tmp = z_r;
+		z_r = dotZ_r - dotZ_i + x;
+		z_i = 2 * tmp * z_i + y;
 		r++;
 	}
 	if (r == iterMax)
-		return (colorToUint(0, 0, 0));
-	return (colorToUint(0, 0, r * 255 / iterMax));
+		return (0);
+	float sr = r - log2(log2(z_r * z_r + z_i * z_i)) + 4.0;
+	float ar = 1.0;
+	return (getColor(mix(r, sr, ar)));
 }
 
 static unsigned int		color(t_mandelbrot m, int pixX, int pixY)

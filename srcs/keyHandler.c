@@ -26,7 +26,7 @@ static void			keyDown(t_env *env, int keycode)
 
 static void			zoom(t_env *env, SDL_Event *event)
 {
-	const double	zo[2] = {0.8, 1.2};
+	const double	zo[2] = {0.75, 1.25};
 	double			offsetX;
 	double			offsetY;
 	double			zoomX;

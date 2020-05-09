@@ -31,10 +31,10 @@ static int		initLib(t_lib *lib)
 
 static void		fillMandelbrotStruct(t_mandelbrot *m)
 {
-	m->bornX[0] = -2.1;
-	m->bornX[1] = 0.6;
-	m->bornY[0] = -1.2;
-	m->bornY[1] = 1.2;
+	m->bornX[0] = -3.6;
+	m->bornX[1] = -0.9;
+	m->bornY[0] = -1.7;
+	m->bornY[1] = 0.7;
 	m->screenWidth = SCREENX;
 }
 
