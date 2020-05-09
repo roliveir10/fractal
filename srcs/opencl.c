@@ -11,6 +11,7 @@ void			delOpenCL(t_cl *ocl)
 	clReleaseKernel(ocl->kernel);
 	clReleaseProgram(ocl->program);
 	clReleaseMemObject(ocl->gpu_buf.canvas_pixels);
+	clReleaseMemObject(ocl->gpu_buf.mandelbrot);
 	clReleaseCommandQueue(ocl->cmd_queue);
 	clReleaseContext(ocl->context);
 }
@@ -91,6 +92,8 @@ static int		clInitGpuMemory(t_cl *ocl)
 	ocl->gpu_buf.canvas_pixels = clCreateBuffer(ocl->context,
 		CL_MEM_WRITE_ONLY, sizeof(cl_uint) * SCREENX * SCREENY,
 		NULL, &error);
+	ocl->gpu_buf.mandelbrot = clCreateBuffer(ocl->context,
+		CL_MEM_READ_ONLY, sizeof(t_mandelbrot), NULL, &error);
 	return (error >= 0);
 }
 
@@ -129,5 +132,41 @@ int				initOpenCL(t_cl *ocl, int platform_index)
 		dprintf(2, "Could not initialize kernels. Aborting...\n");
 		return (0);
 	}
+	return (1);
+}
+
+int				setUpKernel(t_env *env, t_mandelbrot *m)
+{
+	int			error;
+
+	if ((error = clEnqueueWriteBuffer(env->ocl.cmd_queue,
+			env->ocl.gpu_buf.mandelbrot, CL_TRUE, 0, sizeof(t_mandelbrot),
+			m, 0, NULL, NULL)) < 0)
+		return (error);
+	if ((error = clSetKernelArg(env->ocl.kernel, 0, sizeof(cl_mem),
+			&env->ocl.gpu_buf.canvas_pixels)) < 0)
+		return (error);
+	if ((error = clSetKernelArg(env->ocl.kernel, 1, sizeof(cl_mem),
+			&env->ocl.gpu_buf.mandelbrot)) < 0)
+		return (error);
+	return (0);
+}
+
+int				executeKernel(t_env *env)
+{
+	size_t		global_work_size;
+	size_t		local_work_size;
+	int			error;
+
+	global_work_size = SCREENX * SCREENY;
+	local_work_size = 64;
+	if ((error = clEnqueueNDRangeKernel(env->ocl.cmd_queue, env->ocl.kernel, 1,
+			NULL, &global_work_size, &local_work_size, 0, NULL, NULL)) < 0)
+		return (error);
+	if ((error = clEnqueueReadBuffer(env->ocl.cmd_queue,
+			env->ocl.gpu_buf.canvas_pixels, CL_TRUE, 0,
+			SCREENX * SCREENY * sizeof(cl_uint), env->lib.image,
+			0, NULL, NULL)) < 0)
+		return (error);
 	return (1);
 }

@@ -29,6 +29,18 @@ static int		initLib(t_lib *lib)
 	return (1);
 }
 
+static void		fillMandelbrotStruct(t_mandelbrot *m)
+{
+	double		bornX[2] = {-2.1, 0.6};
+	double		bornY[2] = {-1.2, 1.2};
+
+	m->offsetX = 1.2 * bornX[0];
+	m->scaleX = (bornX[1] - bornX[0]) * 0.00125;
+	m->offsetY = bornY[0];
+	m->scaleY = (bornY[1] - bornY[0]) * 0.00125;
+	m->screenWidth = SCREENX;
+}
+
 int				main(void)
 {
 	t_env		env;
@@ -41,6 +53,7 @@ int				main(void)
 		delenv(&env.lib, &env.ocl);
 		return (1);
 	}
+	fillMandelbrotStruct(&env.m);
 	runLoop(&env);
 	delenv(&env.lib, &env.ocl);
 	return (0);

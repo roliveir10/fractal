@@ -1,3 +1,20 @@
+typedef struct			s_mandelbrot
+{
+	int					screenWidth;
+	double				scaleX;
+	double				scaleY;
+	double				offsetX;
+	double				offsetY;
+}						t_mandelbrot;
+
+static unsigned int		colorToUint(unsigned char r, unsigned char g, unsigned char b)
+{
+	unsigned int		color;
+
+	color = (r << 16) | (g << 8) | b;
+	return (color);
+}
+
 static unsigned int		calcMandelbrot(double x, double y)
 {
 	double				z_r = x;
@@ -6,7 +23,7 @@ static unsigned int		calcMandelbrot(double x, double y)
 	double				z0_i = y;
 	int					r = 0;
 	double				tmp;
-	int					iterMax = 300;
+	int					iterMax = 100;
 
 	while (z_r * z_r + z_i * z_i < 4 && r < iterMax)
 	{
@@ -16,32 +33,33 @@ static unsigned int		calcMandelbrot(double x, double y)
 		r++;
 	}
 	if (r == iterMax)
-		return (0x000000);
-	return (0xffffff);
+		return (colorToUint(0, 0, 0));
+	return (colorToUint(0, 0, r * 255 / iterMax));
 }
 
-static unsigned int		color(int pixX, int pixY, int width, int height)
+static unsigned int		color(t_mandelbrot m, int pixX, int pixY)
 {
 	unsigned int		color_rgb;
-	unsigned int		rgb[3];
-	const double		sizeX[2] = {-2.1, 0.6};
-	const double		sizeY[2] = {-1.2, 1.2};
 	double				x;
 	double				y;
 
-	x = 1.2 * sizeX[0] + (sizeX[1] - sizeX[0]) / 800 * pixX;
-	y = sizeY[0] + (sizeY[1] - sizeY[0]) / 800 * pixY;
+	x = m.offsetX + m.scaleX * pixX;
+	y = m.offsetY + m.scaleY * pixY;
 	color_rgb = calcMandelbrot(x, y);
 	return (color_rgb);
 }
 
-__kernel void			mandelbrot(__global unsigned int *output, int width, int height)
+__kernel void			mandelbrot
+(
+						__global unsigned int * output,
+						__constant t_mandelbrot * m
+)
 {
 	const int			work_item_id = get_global_id(0);
-	int					x = work_item_id % width;
-	int					y = work_item_id / width;
+	int					x = work_item_id % m->screenWidth;
+	int					y = work_item_id / m->screenWidth;
 	unsigned int		color_rgb;
 
-	color_rgb = color(x, y, width, height);
+	color_rgb = color(*m, x, y);
 	output[work_item_id] = color_rgb;
 }

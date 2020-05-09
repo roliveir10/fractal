@@ -21,6 +21,7 @@ typedef struct			s_gpu
 typedef struct			s_gpu_buffers
 {
 	cl_mem				canvas_pixels;
+	cl_mem				mandelbrot;
 }						t_gpu_buffers;
 
 typedef struct			s_cl
@@ -50,16 +51,29 @@ typedef struct			s_complex
 	double				i;
 }						t_complex;
 
+typedef struct			s_mandelbrot
+{
+	int					screenWidth;
+	double				scaleX;
+	double				scaleY;
+	double				offsetX;
+	double				offsetY;
+}						t_mandelbrot;
+
 typedef struct			s_env
 {
 	t_lib				lib;
 	t_cl				ocl;
+	t_mandelbrot		m;
 	char				isRunning;
+	char				print;
+	char				keyPress[4];
 }						t_env;
 
 int						initOpenCL(t_cl *ocl, int platform_index);
+int						setUpKernel(t_env *env, t_mandelbrot *m);
+int						executeKernel(t_env *env);
 void					delOpenCL(t_cl *ocl);
 void					runLoop(t_env *env);
-int						drawWindow(t_env *env);
-void					keyHandler(SDL_Event *event);
+void					keyHandler(t_env *env, SDL_Event *event);
 #endif

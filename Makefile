@@ -40,8 +40,7 @@ SRC			=				\
 main.c						\
 opencl.c					\
 libHook.c					\
-keyHandler.c				\
-draw.c
+keyHandler.c				
 
 OBJ_DIR		=		.o
 OBJ			=		$(SRC:.c=.o)
