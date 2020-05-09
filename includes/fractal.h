@@ -54,6 +54,8 @@ typedef struct			s_complex
 typedef struct			s_mandelbrot
 {
 	int					screenWidth;
+	double				bornX[2];
+	double				bornY[2];
 	double				scaleX;
 	double				scaleY;
 	double				offsetX;
@@ -76,4 +78,6 @@ int						executeKernel(t_env *env);
 void					delOpenCL(t_cl *ocl);
 void					runLoop(t_env *env);
 void					keyHandler(t_env *env, SDL_Event *event);
+int						drawWindow(t_env *env);
+void					updateScreen(t_env *env);
 #endif

@@ -1,6 +1,8 @@
 typedef struct			s_mandelbrot
 {
 	int					screenWidth;
+	double				bornX[2];
+	double				bornY[2];
 	double				scaleX;
 	double				scaleY;
 	double				offsetX;
@@ -23,7 +25,7 @@ static unsigned int		calcMandelbrot(double x, double y)
 	double				z0_i = y;
 	int					r = 0;
 	double				tmp;
-	int					iterMax = 100;
+	int					iterMax = 200;
 
 	while (z_r * z_r + z_i * z_i < 4 && r < iterMax)
 	{
