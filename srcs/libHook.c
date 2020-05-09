@@ -13,13 +13,13 @@ static void		updateScreen(t_env *env)
 	double		offsetY = env->m.scaleY * 5;
 
 	if (env->keyPress[0])
-		addOffset(env, -offsetX, 0);
-	else if (env->keyPress[1])
 		addOffset(env, offsetX, 0);
+	else if (env->keyPress[1])
+		addOffset(env, -offsetX, 0);
 	else if (env->keyPress[2])
-		addOffset(env, 0, -offsetY);
-	else if (env->keyPress[3])
 		addOffset(env, 0, offsetY);
+	else if (env->keyPress[3])
+		addOffset(env, 0, -offsetY);
 }
 
 static int		drawWindow(t_env *env)
