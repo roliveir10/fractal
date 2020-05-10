@@ -161,4 +161,5 @@ long				ft_diff_abs(int a, int b);
 void				ft_print_vector(t_vector vector);
 double				ft_max(double value1, double value2);
 int				ft_readFile(int fd, char **file, size_t max);
+double				ft_min(double value1, double value2);
 #endif

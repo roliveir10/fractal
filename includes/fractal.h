@@ -4,14 +4,18 @@
 # include <OpenCL/cl.h>
 # include "libft.h"
 # include "SDL.h"
+# include "SDL_ttf.h"
 
 # define WIN_TITLE "fractal de Robin"
-# define SCREENX 2048
-# define SCREENY 1152
+//# define SCREENX 2048
+//# define SCREENY 1152
 # define CL_PLATFORM_UNINITIALIZED -1
 # define CL_PLATFORM_MAX_AMOUNT 2
 # define CL_PROGRAM_SOURCE_ "kernel.cl"
 # define CL_PROGRAM_OPTIONS "-Wall -Wextra -Werror"
+
+# define PANEL_WIDTH 175
+# define PANEL_HEIGHT 250
 
 # define NBR_KEY 7
 
@@ -54,13 +58,39 @@ typedef struct			s_cl
 	cl_program			program;
 	t_gpu_buffers		gpu_buf;
 	cl_kernel			kernel;
+	int					resolution;
 }						t_cl;
+
+typedef struct			s_text
+{
+	char				*str;
+	SDL_Rect			pos;
+	SDL_Color			fg_color;
+	SDL_Color			bg_color;
+	SDL_Surface			*texte;
+	SDL_Texture			*texture;
+	SDL_Renderer		*renderer;
+	TTF_Font			*police;
+}						t_text;
+
+typedef struct			s_panel
+{
+	SDL_Window			*window;
+	unsigned int		wId;
+	SDL_Renderer		*renderer;
+	TTF_Font			*arial_black_20;
+	SDL_Texture			*panel_bg;
+}						t_panel;
 
 typedef struct			s_lib
 {
 	SDL_Window			*window;
+	int					h;
+	int					w;
+	unsigned int		wId;
 	SDL_Renderer		*renderer;
 	SDL_Texture			*texture;
+	t_panel				panel;
 	unsigned int		*image;
 }						t_lib;
 
@@ -97,6 +127,7 @@ typedef struct			s_env
 	t_lib				lib;
 	t_cl				ocl;
 	t_fractal			f;
+	unsigned int		windowId;
 	char				isRunning;
 	char				print;
 	char				keyPress[NBR_KEY];
@@ -112,5 +143,8 @@ void					keyHandler(t_env *env, SDL_Event *event);
 int						drawWindow(t_env *env);
 void					updateScreen(t_env *env);
 void					fillFractalStruct(t_vector color, t_fractal *f, int type);
-t_vector				getColorArg(int argc, char **argv);
+
+int						initPanel(t_panel *panel);
+int						drawPanel(t_env *env);
+int						drawPanelMain(t_env *env);
 #endif

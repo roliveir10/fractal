@@ -49,15 +49,15 @@ static void			zoom(t_env *env, SDL_Event *event)
 	double			offsetY;
 	double			zoomX;
 	double			zoomY;
+	int				x;
+	int				y;
 	int				type = 0;
-	int				mouseX;
-	int				mouseY;
 
+	SDL_GetGlobalMouseState(&x, &y);
 	if (event->wheel.y > 0)
 		type = 1;
-	SDL_GetMouseState(&mouseX, &mouseY);
-	offsetX = (mouseX - 400) * (1.0 - zo[type]);
-	offsetY = (mouseY - 400) * (1.0 - zo[type]);
+	offsetX = (x - 400) * (1.0 - zo[type]);
+	offsetY = (y - 400) * (1.0 - zo[type]);
 	offsetX = (env->f.bornX[1] - env->f.bornX[0]) * offsetX * 0.00125;
 	offsetY = (env->f.bornY[1] - env->f.bornY[0]) * offsetY * 0.00125;
 	zoomX = (env->f.bornX[1] - env->f.bornX[0]) * (1.0 - zo[type]);
@@ -71,9 +71,9 @@ static void			zoom(t_env *env, SDL_Event *event)
 
 static void			mouseMotion(t_env *env, SDL_Event *event)
 {
-	(void)event;
-
-	if (env->f.fractalType == JULIA && env->keyPress[CLICK])
+	env->windowId = event->button.windowID;
+	if (env->windowId == env->lib.wId
+			&& env->f.fractalType == JULIA && env->keyPress[CLICK])
 	{
 		env->f.z0.r += (env->mouse.deltaX - event->button.x) * 0.0005;
 		env->f.z0.i += (env->mouse.deltaY - event->button.y) * 0.0005;

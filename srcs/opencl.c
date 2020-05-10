@@ -90,7 +90,7 @@ static int		clInitGpuMemory(t_cl *ocl)
 	int			error;
 
 	ocl->gpu_buf.canvas_pixels = clCreateBuffer(ocl->context,
-		CL_MEM_WRITE_ONLY, sizeof(cl_uint) * SCREENX * SCREENY,
+		CL_MEM_WRITE_ONLY, sizeof(cl_uint) * ocl->resolution,
 		NULL, &error);
 	ocl->gpu_buf.fractalStruct = clCreateBuffer(ocl->context,
 		CL_MEM_READ_ONLY, sizeof(t_fractal), NULL, &error);
@@ -158,14 +158,14 @@ int				executeKernel(t_env *env)
 	size_t		local_work_size;
 	int			error;
 
-	global_work_size = SCREENX * SCREENY;
+	global_work_size = env->ocl.resolution;
 	local_work_size = 64;
 	if ((error = clEnqueueNDRangeKernel(env->ocl.cmd_queue, env->ocl.kernel, 1,
 			NULL, &global_work_size, &local_work_size, 0, NULL, NULL)) < 0)
 		return (error);
 	if ((error = clEnqueueReadBuffer(env->ocl.cmd_queue,
 			env->ocl.gpu_buf.canvas_pixels, CL_TRUE, 0,
-			SCREENX * SCREENY * sizeof(cl_uint), env->lib.image,
+			env->ocl.resolution * sizeof(cl_uint), env->lib.image,
 			0, NULL, NULL)) < 0)
 		return (error);
 	return (1);

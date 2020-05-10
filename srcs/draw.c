@@ -9,6 +9,38 @@ static void		addOffset(t_env *env, double offsetX, double offsetY)
 	env->print = 1;
 }
 
+static void		addColor(t_env *env)
+{
+	int			x;
+	int			y;
+
+	if (env->windowId == env->lib.wId)
+		return ;
+	x = env->mouse.deltaX;
+	y = env->mouse.deltaY;
+	if (x > 136 && x < 164)
+	{
+		if (y > 232 || y <= 38)
+			return ;
+		else if (y > 200)
+			env->f.color.z = ft_max(env->f.color.z - 0.01, 0);
+		else if (y > 169)
+			env->f.color.z = ft_min(env->f.color.z + 0.01, 2);
+		else if (y > 135)
+			env->f.color.y = ft_max(env->f.color.y - 0.01, 0);
+		else if (y > 103)
+			env->f.color.y = ft_min(env->f.color.y + 0.01, 2);
+		else if (y > 72)
+			env->f.color.x = ft_max(env->f.color.x - 0.01, 0);
+		else if (y > 38)
+			env->f.color.x = ft_min(env->f.color.x + 0.01, 2);
+		env->print = 1;
+		if (!(drawPanelMain(env)))
+			return ;
+		SDL_RenderPresent(env->lib.panel.renderer);
+	}
+}
+
 static void		addIter(t_env *env, double toAdd)
 {
 	env->f.iterMax = ft_clamp(env->f.iterMax + toAdd, 2, 1000);
@@ -32,6 +64,8 @@ void			updateScreen(t_env *env)
 		addIter(env, 1);
 	else if (env->keyPress[MINUS])
 		addIter(env, -1);
+	else if (env->keyPress[CLICK])
+		addColor(env);
 }
 
 static void		updateData(t_fractal *f)
