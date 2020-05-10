@@ -41,7 +41,9 @@ main.c						\
 opencl.c					\
 libHook.c					\
 keyHandler.c				\
-draw.c
+draw.c						\
+option.c					\
+fillStruct.c
 
 OBJ_DIR		=		.o
 OBJ			=		$(SRC:.c=.o)

@@ -29,16 +29,7 @@ static int		initLib(t_lib *lib)
 	return (1);
 }
 
-static void		fillMandelbrotStruct(t_mandelbrot *m)
-{
-	m->bornX[0] = -3.6;
-	m->bornX[1] = -0.9;
-	m->bornY[0] = -1.7;
-	m->bornY[1] = 0.7;
-	m->screenWidth = SCREENX;
-}
-
-int				main(void)
+int				main(int argc, char **argv)
 {
 	t_env		env;
 
@@ -50,7 +41,7 @@ int				main(void)
 		delenv(&env.lib, &env.ocl);
 		return (1);
 	}
-	fillMandelbrotStruct(&env.m);
+	fillFractalStruct(getColorArg(argc, argv), &env.f, MANDELBROT);
 	runLoop(&env);
 	delenv(&env.lib, &env.ocl);
 	return (0);

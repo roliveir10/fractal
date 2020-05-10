@@ -1,13 +1,14 @@
-typedef struct			s_mandelbrot
+typedef enum			e_type
 {
-	int					screenWidth;
-	double				bornX[2];
-	double				bornY[2];
-	double				scaleX;
-	double				scaleY;
-	double				offsetX;
-	double				offsetY;
-}						t_mandelbrot;
+	MANDELBROT,
+	JULIA
+}						t_type;
+
+typedef struct			s_complex
+{
+	double				r;
+	double				i;
+}						t_complex;
 
 typedef struct			s_vector
 {
@@ -15,6 +16,22 @@ typedef struct			s_vector
 	double				g;
 	double				b;
 }						t_vector;
+
+typedef struct			s_fractal
+{
+	char				fractalType;
+	int					iterMax;
+	int					screenWidth;
+	double				bornX[2];
+	double				bornY[2];
+	double				scaleX;
+	double				scaleY;
+	double				offsetX;
+	double				offsetY;
+	t_complex			z;
+	t_complex			z0;
+	t_vector			usrColor;
+}						t_fractal;
 
 static unsigned int		colorToUint(unsigned char r, unsigned char g, unsigned char b)
 {
@@ -24,42 +41,39 @@ static unsigned int		colorToUint(unsigned char r, unsigned char g, unsigned char
 	return (color);
 }
 
-static unsigned int		getColor(double l)
+static unsigned int		getColor(t_vector usrColor, double l)
 {
 	t_vector			color;
 
-	color.r += 0.5 + 0.5 * cos(3.0 + l * 0.15);
-	color.g += 0.5 + 0.5 * cos(3.0 + l * 0.15 + 0.6);
-	color.b += 0.5 + 0.5 * cos(3.0 + l * 0.15 + 1.0);
+	color.r += 0.5 + 0.5 * cos(3.0 + l * 0.15 + usrColor.r);
+	color.g += 0.5 + 0.5 * cos(3.0 + l * 0.15 + usrColor.g);
+	color.b += 0.5 + 0.5 * cos(3.0 + l * 0.15 + usrColor.b);
 	return (colorToUint(255 * color.r, 255 * color.g, 255 * color.b));
 }
 
-static unsigned int		calcMandelbrot(double x, double y)
+static unsigned int		calc(t_fractal m, double x, double y)
 {
-	double				z_r = x;
-	double				z_i = y;
 	int					r = 0;
-	int					iterMax = 256;
 
-	while (r < iterMax)
+	while (r < m.iterMax)
 	{
-		double dotZ_r = z_r * z_r;
-		double dotZ_i = z_i * z_i;
+		double dotZ_r = m.z.r * m.z.r;
+		double dotZ_i = m.z.i * m.z.i;
 		if (dotZ_r + dotZ_i > 65235)
 			break ;
-		double tmp = z_r;
-		z_r = dotZ_r - dotZ_i + x;
-		z_i = 2 * tmp * z_i + y;
+		double tmp = m.z.r;
+		m.z.r = dotZ_r - dotZ_i + m.z0.r;
+		m.z.i = 2 * tmp * m.z.i + m.z0.i;
 		r++;
 	}
-	if (r == iterMax)
+	if (r == m.iterMax)
 		return (0);
-	float sr = r - log2(log2(z_r * z_r + z_i * z_i)) + 4.0;
+	float sr = r - log2(log2(m.z.r * m.z.r + m.z.i * m.z.i)) + 4.0;
 	float ar = 1.0;
-	return (getColor(mix(r, sr, ar)));
+	return (getColor(m.usrColor, mix(r, sr, ar)));
 }
 
-static unsigned int		color(t_mandelbrot m, int pixX, int pixY)
+static unsigned int		color(t_fractal m, int pixX, int pixY)
 {
 	unsigned int		color_rgb;
 	double				x;
@@ -67,14 +81,18 @@ static unsigned int		color(t_mandelbrot m, int pixX, int pixY)
 
 	x = m.offsetX + m.scaleX * pixX;
 	y = m.offsetY + m.scaleY * pixY;
-	color_rgb = calcMandelbrot(x, y);
+	m.z.r = x;
+	m.z.i = y;
+	if (m.fractalType == MANDELBROT)
+		m.z0 = m.z;
+	color_rgb = calc(m, x, y);
 	return (color_rgb);
 }
 
-__kernel void			mandelbrot
+__kernel void			drawFractal
 (
 						__global unsigned int * output,
-						__constant t_mandelbrot * m
+						__constant t_fractal * m
 )
 {
 	const int			work_item_id = get_global_id(0);

@@ -2,42 +2,52 @@
 
 static void		addOffset(t_env *env, double offsetX, double offsetY)
 {
-	env->m.bornX[0] += offsetX;
-	env->m.bornX[1] += offsetX;
-	env->m.bornY[0] += offsetY;
-	env->m.bornY[1] += offsetY;
+	env->f.bornX[0] += offsetX;
+	env->f.bornX[1] += offsetX;
+	env->f.bornY[0] += offsetY;
+	env->f.bornY[1] += offsetY;
+	env->print = 1;
+}
+
+static void		addIter(t_env *env, double toAdd)
+{
+	env->f.iterMax = ft_clamp(env->f.iterMax + toAdd, 2, 1000);
 	env->print = 1;
 }
 
 void			updateScreen(t_env *env)
 {
-	double		offsetX = (env->m.bornX[1] - env->m.bornX[0]) * 0.01;
-	double		offsetY = (env->m.bornY[1] - env->m.bornY[0]) * 0.01;
+	double		offsetX = (env->f.bornX[1] - env->f.bornX[0]) * 0.05;
+	double		offsetY = (env->f.bornY[1] - env->f.bornY[0]) * 0.05;
 
-	if (env->keyPress[0])
+	if (env->keyPress[LEFT])
 		addOffset(env, offsetX, 0);
-	else if (env->keyPress[1])
+	else if (env->keyPress[RIGHT])
 		addOffset(env, -offsetX, 0);
-	else if (env->keyPress[2])
+	else if (env->keyPress[UP])
 		addOffset(env, 0, offsetY);
-	else if (env->keyPress[3])
+	else if (env->keyPress[DOWN])
 		addOffset(env, 0, -offsetY);
+	else if (env->keyPress[PLUS])
+		addIter(env, 1);
+	else if (env->keyPress[MINUS])
+		addIter(env, -1);
 }
 
-static void		updateData(t_mandelbrot *m)
+static void		updateData(t_fractal *f)
 {
-	m->offsetX =m->bornX[0];
-	m->scaleX = (m->bornX[1] - m->bornX[0]) * 0.00125;
-	m->offsetY = m->bornY[0];
-	m->scaleY = (m->bornY[1] - m->bornY[0]) * 0.00125;
+	f->offsetX = f->bornX[0];
+	f->scaleX = (f->bornX[1] - f->bornX[0]) * 0.00125;
+	f->offsetY = f->bornY[0];
+	f->scaleY = (f->bornY[1] - f->bornY[0]) * 0.00125;
 }
 
 int				drawWindow(t_env *env)
 {
 	int			error;
 
-	updateData(&env->m);
-	if ((error = setUpKernel(env, &env->m)) < 0)
+	updateData(&env->f);
+	if ((error = setUpKernel(env, &env->f)) < 0)
 		return (0);
 	if ((error = executeKernel(env)) < 0)
 		return (0);

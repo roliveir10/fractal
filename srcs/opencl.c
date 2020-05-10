@@ -11,7 +11,7 @@ void			delOpenCL(t_cl *ocl)
 	clReleaseKernel(ocl->kernel);
 	clReleaseProgram(ocl->program);
 	clReleaseMemObject(ocl->gpu_buf.canvas_pixels);
-	clReleaseMemObject(ocl->gpu_buf.mandelbrot);
+	clReleaseMemObject(ocl->gpu_buf.fractalStruct);
 	clReleaseCommandQueue(ocl->cmd_queue);
 	clReleaseContext(ocl->context);
 }
@@ -92,8 +92,8 @@ static int		clInitGpuMemory(t_cl *ocl)
 	ocl->gpu_buf.canvas_pixels = clCreateBuffer(ocl->context,
 		CL_MEM_WRITE_ONLY, sizeof(cl_uint) * SCREENX * SCREENY,
 		NULL, &error);
-	ocl->gpu_buf.mandelbrot = clCreateBuffer(ocl->context,
-		CL_MEM_READ_ONLY, sizeof(t_mandelbrot), NULL, &error);
+	ocl->gpu_buf.fractalStruct = clCreateBuffer(ocl->context,
+		CL_MEM_READ_ONLY, sizeof(t_fractal), NULL, &error);
 	return (error >= 0);
 }
 
@@ -101,7 +101,7 @@ static int		clInitKernel(t_cl *ocl)
 {
 	int			error;
 
-	ocl->kernel = clCreateKernel(ocl->program, "mandelbrot", &error);
+	ocl->kernel = clCreateKernel(ocl->program, "drawFractal", &error);
 	return (error >= 0);
 }
 
@@ -135,19 +135,19 @@ int				initOpenCL(t_cl *ocl, int platform_index)
 	return (1);
 }
 
-int				setUpKernel(t_env *env, t_mandelbrot *m)
+int				setUpKernel(t_env *env, t_fractal *f)
 {
 	int			error;
 
 	if ((error = clEnqueueWriteBuffer(env->ocl.cmd_queue,
-			env->ocl.gpu_buf.mandelbrot, CL_TRUE, 0, sizeof(t_mandelbrot),
-			m, 0, NULL, NULL)) < 0)
+			env->ocl.gpu_buf.fractalStruct, CL_TRUE, 0, sizeof(t_fractal),
+			f, 0, NULL, NULL)) < 0)
 		return (error);
 	if ((error = clSetKernelArg(env->ocl.kernel, 0, sizeof(cl_mem),
 			&env->ocl.gpu_buf.canvas_pixels)) < 0)
 		return (error);
 	if ((error = clSetKernelArg(env->ocl.kernel, 1, sizeof(cl_mem),
-			&env->ocl.gpu_buf.mandelbrot)) < 0)
+			&env->ocl.gpu_buf.fractalStruct)) < 0)
 		return (error);
 	return (0);
 }
