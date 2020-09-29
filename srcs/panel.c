@@ -4,8 +4,11 @@ static int			initPanelFont(t_panel *panel)
 {
 	if (TTF_Init() == -1)
 		return (0);
-	if (!(panel->arial_black_20 = TTF_OpenFont("/Library/Fonts/Arial Black.ttf", 20)))
+	if (!(panel->arial_black_20 = TTF_OpenFont("/Library/Fonts/Arial Unicode.ttf", 20)))
+	{
+		dprintf(2, "invalid font\n");
 		return (0);
+	}
 	return (1);
 }
 

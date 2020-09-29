@@ -19,7 +19,7 @@ GREEN		=		\x1b[32m
 
 INC_DIR		=		includes
 
-SDL_LIB		=		SDL2-2.0.9
+SDL_LIB		=		SDL2-2.0.12
 SDL_DIR		=		SDL2
 SDL_TAR		=		$(SDL_LIB).tar.gz
 SDL_BUILD	=		$(SDL_DIR)/lib/libSDL2.a
